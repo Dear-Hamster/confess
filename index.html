@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Prettiest Person</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Playfair Display Font for Realistic Paper Look -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="flex items-center justify-center min-h-screen py-10">
+
+    <div id="heart-rain-container"></div>
+    <h2 id="cato" class="fixed w-full top-6 left-1/2 -translate-x-1/2 
+         text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl 
+            ">
+        🎀Cato Chaan🎀
+    </h2>
+
+
+    <!-- Popup that shows on load; user clicks to start music and continue -->
+    <div id="start-modal" class="fixed inset-0 z-50 flex items-center justify-center  " role="dialog" aria-modal="true">
+
+        <img id="start-image" tabindex="0" src="./public/hifi.gif" alt="Start"
+            class="modal-img  mx-auto  modal-card bg-transparent p-6  text-center max-w-sm mx-4" />
+        <img src="./public/sitting.gif" class="absolute left-[25%] bottom-[-6%]  z-[9999] w-44 h-44"
+            alt="chat animation" />
+    </div>
+    </div>
+
+    <!-- Background audio (replace src as needed; clicking ensures user gesture to play) -->
+    <audio id="bg-music" preload="auto" loop muted>
+        <source src="./public/confessurlove.mp3" type="audio/mpeg" />
+        <!-- Replace the source with your preferred audio. -->
+    </audio>
+
+    <!-- Paper Page Container -->
+    <div id="paper-page" class="relative z-10 p-10 md:p-16 text-center max-w-2xl w-full mx-auto rounded-xl">
+        <!-- Initial Riddle Text -->
+        <div id="riddle-container"
+            class="text-slate-800 text-3xl md:text-5xl font-bold tracking-wide space-y-4 italic leading-relaxed">
+
+            <!-- Text lines will be populated by JS -->
+        </div>
+
+        <!-- Next Button -->
+        <button id="next-button"
+            class="mt-12 px-10 py-4 bg-rose-500 text-white font-bold text-lg rounded-full shadow-lg hover:bg-rose-600 transition duration-300 transform hover:scale-105 opacity-0 cursor-pointer z-20 relative"
+            onclick="startLoveSequence()">
+            Next
+        </button>
+
+        <!-- Love Message Container -->
+        <!-- Changed to flex-col to stack messages instead of replacing them -->
+        <div id="love-message-container"
+            class="hidden mt-4 text-slate-800 flex flex-col items-center justify-center space-y-6 pb-10">
+            <!-- Messages will be appended here -->
+        </div>
+
+    </div>
+
+    <script>
+        const riddleText = [
+            "1. do", "2. You", "3. Know", "4. who", "5. is", "6. the",
+            "7. prettiest", "8. person", "9. in the world",
+            "",
+            "Now Read..",
+            "",
+            , " 6, 7, 8, 9, 5, 2"
+        ];
+
+        const loveMessages = [
+            { text: "I wanna be Yours", target: { char: 'I', index: 0 } },
+            { text: "You are my life line", target: { char: 'L', index: 11 } },
+            { text: "You are my world", target: { char: 'O', index: 12 } },
+            { text: "You are valuable to me", target: { char: 'V', index: 8 } },
+            { text: "You are my everthing", target: { char: 'E', index: 11 } },
+            { text: "You are my Cutie Pie", target: { char: 'U', index: 12 } },
+        ];
+
+        const riddleContainer = document.getElementById('riddle-container');
+        const nextButton = document.getElementById('next-button');
+        const loveMessageContainer = document.getElementById('love-message-container');
+        const heartRainContainer = document.getElementById('heart-rain-container');
+        const paperPage = document.getElementById('paper-page');
+
+
+        // --- HEART RAIN ANIMATION ---
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '&#10084;';
+            heart.style.left = `${Math.random() * 100}vw`;
+            heart.style.animationDuration = `${Math.random() * 3 + 5}s`;
+            heart.style.animationDelay = `${Math.random() * 5}s`;
+            heart.style.opacity = Math.random() * 0.5 + 0.5;
+            heartRainContainer.appendChild(heart);
+
+            setTimeout(() => heart.remove(), 8000);
+        }
+
+        function startHeartRain() {
+            heartRainContainer.style.opacity = 1;
+            setInterval(createHeart, 300);
+            for (let i = 0; i < 15; i++) createHeart();
+        }
+
+
+        // --- INITIAL RIDDLE ANIMATION ---
+        function startRiddleAnimation() {
+            if (typeof console !== 'undefined') console.log('startRiddleAnimation fired');
+            riddleContainer.innerHTML = riddleText.map(line =>
+                `<span class="block text-center">${line}</span>`
+            ).join('');
+
+            const img = document.createElement('img');
+            img.src = './public/dance.gif';
+            img.alt = 'chat animation';
+
+            // Add your Tailwind classes
+            img.className = `
+  fixed bottom-4 right-4 z-[9999]
+  w-30 h-30        /* default */
+  sm:w-58 sm:h-58  /* small screens and up */
+  md:w-86 md:h-86  
+`.trim()
+
+            // Append it wherever you want (body in this case)
+            document.body.appendChild(img);
+
+
+
+            const lines = riddleContainer.querySelectorAll('span');
+            if (typeof console !== 'undefined') console.log('Riddle lines count:', lines.length);
+
+            // set a robust initial state to ensure lines are hidden before the animation
+            try {
+                gsap.set(lines, { opacity: 0, y: 30, rotationX: -45, transformOrigin: 'center top' });
+            } catch (err) {
+                // GSAP not loaded or errored; fallback: show lines and reveal next button
+                lines.forEach(l => { l.style.opacity = 1; l.style.transform = 'translateY(0)'; });
+                nextButton.style.opacity = 1;
+                // Make button clickable if GSAP isn't available
+                nextButton.style.pointerEvents = 'auto';
+                console.warn('GSAP not available; riddle lines and next button made visible using CSS fallback.');
+            }
+
+            gsap.timeline({ delay: 0.2 })
+                .to(lines, {
+                    duration: 1.2,
+                    y: 0,
+                    opacity: 1,
+                    stagger: 0.3,
+                    rotationX: 0, // Paper unfold effect reset
+                    transformOrigin: "center top",
+                    ease: "power3.out"
+                })
+                .add(() => { if (typeof console !== 'undefined') console.log('Riddle animation complete'); })
+                .to(nextButton, {
+                    duration: 1,
+                    opacity: 1,
+                    scale: 1,
+                    ease: "elastic.out(1, 0.6)"
+                }, "+=0.5")
+                .to(nextButton, {
+                    scale: 1.05,
+                    repeat: -1,
+                    yoyo: true,
+                    duration: 1.5,
+                    ease: "sine.inOut"
+                }, "<");
+        }
+
+
+        // --- LOVE MESSAGE SEQUENCE ---
+        async function startLoveSequence() {
+            // Smoothly remove riddle text
+            gsap.to([riddleContainer, nextButton], {
+                duration: 0.8,
+                opacity: 0,
+                y: -20,
+                stagger: 0.1,
+                ease: "power2.in",
+                onComplete: () => {
+                    riddleContainer.classList.add('hidden');
+                    nextButton.classList.add('hidden');
+                    loveMessageContainer.classList.remove('hidden');
+                }
+            });
+
+            startHeartRain();
+
+            // Paper reacts to the emotion start
+            gsap.to(paperPage, {
+                duration: 2,
+                boxShadow: "0 25px 50px -12px rgba(225, 29, 72, 0.3)", // Reddish glow shadow
+            });
+
+            for (let i = 0; i < loveMessages.length; i++) {
+                await displayAndHighlightMessage(loveMessages[i], i);
+            }
+        }
+
+        function displayAndHighlightMessage(msgData, index) {
+            return new Promise(resolve => {
+                const message = msgData.text;
+                const targetIndex = msgData.target.index;
+
+                // Create a new paragraph for each line to keep them all visible
+                const lineP = document.createElement('p');
+                lineP.className = "text-xl md:text-3xl font-bold italic opacity-0"; // Initial opacity 0
+
+                // Split text
+                lineP.innerHTML = Array.from(message).map((char, i) =>
+                    `<span class="char-span text-slate-700 inline-block">${char === ' ' ? '&nbsp;' : char}</span>`
+                ).join('');
+
+                loveMessageContainer.appendChild(lineP);
+
+                // Need to query spans specifically within this new line
+                const charSpans = lineP.querySelectorAll('.char-span');
+
+                // Animate Line Entrance
+                const tl = gsap.timeline({
+                    onComplete: async () => {
+                        await new Promise(r => setTimeout(r, 600)); // Slight delay before highlight
+
+                        // Dim effect for this specific line's normal text
+                        gsap.to(charSpans, { duration: 1, color: "#94a3b8", opacity: 0.6 });
+
+                        const targetElement = charSpans[targetIndex];
+
+                        if (targetElement) {
+                            // Pop out the letter and KEEP IT there
+                            gsap.to(targetElement, {
+                                duration: 1.2,
+                                color: "#e11d48", // Rose Red
+                                fontSize: "1.8em", // Bigger
+                                fontWeight: 900,
+                                y: -5,
+                                rotate: gsap.utils.random(-5, 5),
+                                opacity: 1,
+                                ease: "elastic.out(1, 0.4)",
+                                onComplete: () => {
+                                    resolve(); // Move to next line
+                                }
+                            });
+                        } else {
+                            resolve();
+                        }
+                    }
+                });
+
+                // Fade in the line container first
+                gsap.to(lineP, { duration: 0, opacity: 1 });
+
+                // Animate characters appearing
+                tl.from(charSpans, {
+                    duration: 0.8,
+                    opacity: 0,
+                    y: 10,
+                    stagger: 0.03,
+                    ease: "power2.out"
+                });
+            });
+        }
+
+        // Startup modal logic: show overlay on load; click image or button to play music and start the riddle
+        function showStartModal() {
+            const modal = document.getElementById('start-modal');
+            const startImg = document.getElementById('start-image');
+            const startBtn = document.getElementById('start-music-btn');
+            const skipBtn = document.getElementById('skip-btn');
+            const audio = document.getElementById('bg-music');
+
+            // Hide modal and optionally start music, then start riddle animation
+            function beginExperience(playMusic = true) {
+                try {
+                    modal.classList.add('hidden');
+                    setTimeout(() => { if (modal.parentNode) modal.parentNode.removeChild(modal); }, 500);
+                    if (playMusic && audio) {
+                        audio.muted = false; // unmute and play
+                        audio.play().catch(err => console.warn('Audio play failed:', err));
+                    }
+                } catch (err) {
+                    console.warn('Error hiding modal or playing audio', err);
+                }
+
+                // Kick off the riddle animation after modal dismissed
+                startRiddleAnimation();
+            }
+
+            // Click handlers
+            startImg.addEventListener('click', () => beginExperience(true));
+            // keyboard handler (Enter/Space) for accessibility
+            startImg.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); beginExperience(true); } });
+            startBtn.addEventListener('click', () => beginExperience(true));
+            skipBtn.addEventListener('click', () => beginExperience(false));
+        }
+
+        window.onload = showStartModal;
+
+    </script>
+</body>
+
+</html>

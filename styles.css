@@ -1,0 +1,95 @@
+@import url("https://fonts.googleapis.com/css2?family=Playwrite+NZ+Guides&display=swap");
+body {
+  font-family: "Playfair Display", serif;
+  background-color: #f3e8ff;
+  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+  background-size: 20px 20px;
+  /* Allow scrolling if content gets long */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#heart-rain-container {
+  position: fixed;
+  /* Fixed so it covers screen even when scrolling */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  z-index: 5;
+}
+
+.heart {
+  position: absolute;
+  font-size: 24px;
+  color: #db2777;
+  animation: fall linear infinite;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(-100vh) scale(0.5) rotate(0deg);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateY(100vh) scale(1.2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Realistic Paper Styling */
+#paper-page {
+  position: relative;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"),
+    linear-gradient(to bottom right, #ffffff, #fdf2f8);
+  transition: all 1s ease;
+  transform: rotate(-1deg);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 2px 2px rgba(0, 0, 0, 0.1),
+    0 4px 4px rgba(0, 0, 0, 0.1), 0 8px 8px rgba(0, 0, 0, 0.1),
+    0 16px 16px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+  /* Ensure paper has some height */
+}
+
+#paper-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
+  background-size: 100% 2rem;
+  opacity: 0.2;
+  border-radius: 0.75rem;
+}
+
+/* Startup modal styling */
+#start-modal {
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+#start-modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#start-modal .modal-card img {
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+}
+
+#cato{
+  font-family: "Playwrite NZ Guides", cursive;
+}
